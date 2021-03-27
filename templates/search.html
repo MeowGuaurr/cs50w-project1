@@ -27,8 +27,8 @@
           <tbody>
               {% for book in books %}
                   <tr>
-                    <td><a{{book.title}}</td>
-                    <td><a href="book.html">{{book.isbn}}</a></td>
+                    <td><a href="/book/{{book['isbn']}}">{{book.isbn}}</a></td>
+                    <td>{{book.title}}</td>
                     <td>{{book.author}}</td>
                     <td>{{book.year}}</td>
                   </tr>

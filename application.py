@@ -63,23 +63,44 @@ def search():
 
 @app.route("/book/<isbn>", methods=['GET','POST'])
 def book(isbn):
-    user = session[user_id]
-    rating = request.form.get("rating")
-    comment = request.form.get("comment")
-    
-    rows = db.execute("SELECT title FROM books WHERE isbn = :isbn", {"isbn": isbn})
-    
-    rows1 = db.execute("SELECT * FROM rate WHERE id_user = :user_id AND isbn = :isbn", {"user_id": user, "isbn":isbn})
-    
-    rating = int(rating)
-    
-    db.execute("INSERT INTO rate (id_user, isbn, comment, rating) VALUES \
-    (:user_id, :isbn, :comment, :rating)", {"id_user":user, "isbn":isbn, "comment":comment, "rating":rating})
-    
-    db.commit()
-    flash("saved")
-    return redirect("/book/ + isbn")
-    
+    if request.method =="GET":
+        user = session["user_id"]
+
+        rows = db.execute("SELECT book_id FROM books WHERE isbn = :isbn", {"isbn": isbn}) #selecciona id conforme a isbn
+        bookid = rows.fetchone()
+        book_id = bookid[0]
+        print(book_id)
+
+        consulta = db.execute("SELECT isbn, title, author, year FROM books WHERE book_id = :book_id", {"book_id" : book_id}) #consulta  info de books
+        resultado = consulta.fetchall()
+        print(resultado)
+
+        return render_template("book.html", consult=resultado)
+    else:
+        return render_template("search.html")
+
+        #rating = request.form.get("rating")
+        #comment = request.form.get("comment")
+
+
+        #if rows1.rowcount == 1:
+         #   flash("already submitted a review")
+          #  return redirect("/book/" + isbn)
+
+        #rows1 = db.execute("SELECT * FROM rate WHERE id_user = :user_id AND book_id = :book_id", {"user_id": user, "book_id" :bookid})
+        #selecciona toda la info del libro
+
+
+
+    #    rating = int(rating)
+
+     #   db.execute("INSERT INTO rate (id_user, book_id, comment, rating) VALUES \
+      #  (:user_id, :book_id, :comment, :rating)", {"id_user":user, "book_id":bookid, "comment":comment, "rating":rating})
+
+       # db.commit()
+
+        #flash("saved")
+
 
 @app.route("/login", methods = ["GET", "POST"])
 def login():
