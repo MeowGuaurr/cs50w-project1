@@ -77,30 +77,35 @@ def book(isbn):
 
         return render_template("book.html", consult=resultado)
     else:
-        return render_template("search.html")
+        user = session["user_id"]
+        rating = request.form.get("rating")
+        comment= request.form.get("comment")
 
-        #rating = request.form.get("rating")
-        #comment = request.form.get("comment")
+        row = db.execute("SELECT id_book FROM books WHERE isbn = :isbn", {"isbn":isbn})
 
+        book_fetch = row.fetchone()
+        book = book_fetch[0]
 
-        #if rows1.rowcount == 1:
-         #   flash("already submitted a review")
-          #  return redirect("/book/" + isbn)
+        row2 = db.execute("SELECT * FROM rates WHERE id_user = :id_user AND id_book = :id_book",
+        {"id_user": user, "id_book" :book})
 
-        #rows1 = db.execute("SELECT * FROM rate WHERE id_user = :user_id AND book_id = :book_id", {"user_id": user, "book_id" :bookid})
-        #selecciona toda la info del libro
+        if row2.rowcount == 1:
+            flash("Rating succesfull")
+            return redirect("/book/" + isbn)
 
+        rating =int(rating)
 
+        db.execute("INSERT INTO rate (user_id, book_id, comment, rating) VALUES \
+                    (:user_id, :book_id, :comment, :rating)",
+                    {"user_id": user,
+                    "book_id": book,
+                    "comment": comment,
+                    "rating": rating})
 
-    #    rating = int(rating)
+        db.commit()
 
-     #   db.execute("INSERT INTO rate (id_user, book_id, comment, rating) VALUES \
-      #  (:user_id, :book_id, :comment, :rating)", {"id_user":user, "book_id":bookid, "comment":comment, "rating":rating})
-
-       # db.commit()
-
-        #flash("saved")
-
+        flash("comment submmited")
+        return redirect("/book/" + isbn)
 
 @app.route("/login", methods = ["GET", "POST"])
 def login():

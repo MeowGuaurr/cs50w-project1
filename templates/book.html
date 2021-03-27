@@ -19,4 +19,49 @@
             <h5>ISBN: {{consult[0]['isbn']}}</h5>
           </div>
         </div>
+
+        <form method="POST" class="form-border">
+            <div class="form-row">
+                <div class="form-group col-sm">
+                    <label for="rating">Rate this book</label>
+                    <select id="rating" name="rating" class="form-control" required>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option selected value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+                <div class="form-group col-sm-6">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Say something</span>
+                        </div>
+                        <textarea name="comment" id="comment" class="form-control" rows="1" required></textarea>
+                    </div>
+                </div>
+                <div class="form-group col-sm">
+                    <button class="btn btn-success" type="submit">Submit</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Users Rating list -->
+            <div id="users-ratings">
+                {% for rate in rates %}
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ rate['username'] }} said...</h6>
+                            <small>{{ rate['time'] }}</small>
+                        </div>
+                        <p class="mb-1">{{ rate['comment'] }}</p>
+                        <small>Rated: {{ rate['rating'] }}</small>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
 {% endblock %}
