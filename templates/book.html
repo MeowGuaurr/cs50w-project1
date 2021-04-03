@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block main %}
-
-        <div class=" text-center text-white bg-dark margen">
+<div class="text-center background">
+    <div class="text-center text-white bg-dark">
           <img src="http://covers.openlibrary.org/b/isbn/{{consult[0]['isbn']}}-M.jpg"  alt="titulo" width="300px">
           <div class="card-body text-white bg-dark">
             <h5 class="card-title">{{consult[0]['title']}}</h5>
@@ -19,8 +19,18 @@
             <h5>ISBN: {{consult[0]['isbn']}}</h5>
           </div>
         </div>
+        <div class="card text-center text-white bg-dark">
+          <div class="card-body text-white bg-dark">
+            <h5>About:</h5>
+            <p>{{description}}</p>
+            <h5>Avg rating: {{rated}}</h5>
+            <h5>Rating: {{count}}</h5>
+          </div>
+        </div>
 
-        <form method="POST" class="form-border">
+
+
+        <form method="POST" class="form-border background">
             <div class="form-row">
                 <div class="form-group col-sm">
                     <label for="rating">Rate this book</label>
@@ -64,4 +74,6 @@
             </div>
 
         </div>
+</div>
+
 {% endblock %}

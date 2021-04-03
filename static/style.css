@@ -11,13 +11,11 @@
 }
 
 .background {
-  background-attachment: fixed;
-  background: url(https://wallpapercave.com/wp/wp3085091.jpg);
-  background-size: cover;
-  display: flex;
-  min-height: 540px;
-  position: center;
-  color: white;
+	background: black;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	color: white;
 }
 
 
@@ -66,3 +64,56 @@
 	}
 
 }
+
+.button_form {
+	position: relative;
+	display: inline-block;
+	padding: 8px 30px;
+	color: white;
+	background: black;
+	text-decoration: none;
+	overflow: hidden;
+	transition: 0.1s;
+	border: 0 solid black;
+}
+
+.button_form:hover
+{
+	top: 0;
+	color:#862d59;
+	background: #2196f3;
+	box-shadow: 0 0 10px #2196f3, 0 0 40px #2196f3, 0 0 80px #2196f3;
+	transition-delay: 0.1s;
+}
+
+.box:hover
+{
+	box-shadow: 0 0 10px #2196f3, 0 0 40px #2196f3, 0 0 80px #2196f3;
+
+}
+
+.table{
+	color: white !important;
+}
+
+.button_form1 {
+	position: relative;
+	display: inline-block;
+	padding: 8px 30px;
+	color: white;
+	background: transparent;
+	text-decoration: none;
+	overflow: hidden;
+	transition: 0.1s;
+	border: 0 solid transparent;
+}
+
+.button_form1:hover
+{
+	top: 0;
+	color:#862d59;
+	background: #2196f3;
+	box-shadow: 0 0 10px #2196f3, 0 0 40px #2196f3, 0 0 80px #2196f3;
+	transition-delay: 0.1s;
+}
+

@@ -10,6 +10,7 @@ from flask import flash
 import requests
 import math
 import string
+import json
 
 app = Flask(__name__)
 
@@ -63,41 +64,29 @@ def search():
 
 @app.route("/book/<isbn>", methods=['GET','POST'])
 def book(isbn):
-    if request.method =="GET":
+    if request.method =="POST":
         user = session["user_id"]
+
+        rating = request.form.get("rating")
+        comment= request.form.get("comment")
 
         rows = db.execute("SELECT book_id FROM books WHERE isbn = :isbn", {"isbn": isbn}) #selecciona id conforme a isbn
         bookid = rows.fetchone()
         book_id = bookid[0]
         print(book_id)
 
-        consulta = db.execute("SELECT isbn, title, author, year FROM books WHERE book_id = :book_id", {"book_id" : book_id}) #consulta  info de books
-        resultado = consulta.fetchall()
-        print(resultado)
-
-        return render_template("book.html", consult=resultado)
-    else:
-        user = session["user_id"]
-        rating = request.form.get("rating")
-        comment= request.form.get("comment")
-
-        row = db.execute("SELECT id_book FROM books WHERE isbn = :isbn", {"isbn":isbn})
-
-        book_fetch = row.fetchone()
-        book = book_fetch[0]
-
-        row2 = db.execute("SELECT * FROM rates WHERE id_user = :id_user AND id_book = :id_book",
-        {"id_user": user, "id_book" :book})
+        row2 = db.execute("SELECT * FROM rate WHERE id_user = :id_user AND book_id = :book_id",
+        {"id_user": user, "book_id" :book})
 
         if row2.rowcount == 1:
-            flash("Rating succesfull")
+            flash("You already rate this book")
             return redirect("/book/" + isbn)
 
         rating =int(rating)
 
-        db.execute("INSERT INTO rate (user_id, book_id, comment, rating) VALUES \
-                    (:user_id, :book_id, :comment, :rating)",
-                    {"user_id": user,
+        db.execute("INSERT INTO rate (id_user, book_id, comment, rating) VALUES \
+                    (:id_user, :book_id, :comment, :rating)",
+                    {"id_user": user,
                     "book_id": book,
                     "comment": comment,
                     "rating": rating})
@@ -106,6 +95,61 @@ def book(isbn):
 
         flash("comment submmited")
         return redirect("/book/" + isbn)
+
+    else:
+
+        consulta = db.execute("SELECT isbn, title, author, year FROM books WHERE \
+                        isbn = :isbn",
+                        {"isbn": isbn})
+        resultado = consulta.fetchall()
+
+        query = requests.get("https://www.googleapis.com/books/v1/volumes?q=isbn:"+isbn)
+        response = query.json()
+
+        response = response['items'][0]
+        description = response["volumeInfo"]["description"]
+        count = response["volumeInfo"]["ratingsCount"]
+        rated = response["volumeInfo"]["averageRating"]
+
+        resultado.append(response)
+
+        # users
+
+        row1 = db.execute("SELECT book_id FROM books WHERE isbn = :isbn", {"isbn":isbn})
+        bookid = row1.fetchone()
+        book_id = bookid[0]
+
+
+
+        rates = db.execute("SELECT users.username, comment, rating, to_char(published_time, 'DD Mon YY - HH24:MI:SS') AS time FROM users INNER JOIN rate ON users.id_user = rate.id_user WHERE book_id = :book_id ORDER BY time ", {"book_id" : book_id})
+        x = rates.fetchall()
+
+        return render_template("book.html", consult=resultado, rates = x, description=description, count=count, rated=rated)
+
+@app.route("/api/<isbn>", methods = ["GET", "POST"])
+def api_route(isbn):
+    libro = db.execute("SELECT * FROM books WHERE isbn = :isbn",
+                        {"isbn": isbn})
+
+    if libro.rowcount != 1:
+        return jsonify({"Error": "Incorrect isbn"})
+
+    req = requests.get("https://www.googleapis.com/books/v1/volumes?q=isbn:"+isbn)
+
+    if req.status_code != 200:
+        raise Exception("ERROR: unsuccesful API req")
+    response = req.jason()
+    response = response["items"][0]
+    averageRating = response["volumeInfo"]["averageRating"]
+    count= response["volumeInfo"]["ratingsCount"]
+
+    return jsonify({
+        "title": libro.title,
+        "author": libro.author,
+        "year": libro.year,
+        "isbn": libro.isbn,
+        "review_count": libro.count,
+        "average_score": libro.averageRating})
 
 @app.route("/login", methods = ["GET", "POST"])
 def login():
